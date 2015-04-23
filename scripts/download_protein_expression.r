@@ -1,5 +1,6 @@
 ##download_protein_expression.r
 ##2015-01-13 dmontaner@cipf.es
+##2015-04-23 julenmendieta92@gmail.com
 ##Collecting data from TCGA
 
 ## The scripts uses TCGA DCC Web Services to find out all the PROTEIN EXPRESSION data.
@@ -14,8 +15,8 @@ date ()
 Sys.info ()[c("nodename", "user")]
 commandArgs ()
 rm (list = ls ())
-R.version.string ##"R version 3.1.2 (2014-10-31)"
-library (RCurl); packageDescription ("RCurl", fields = "Version") #"1.95-4.3"
+R.version.string ##"R version 3.2.0 (2015-04-16)"
+library (RCurl); packageDescription ("RCurl", fields = "Version") #"1.95-4.5"
 library (XML); packageDescription ("XML", fields = "Version") #"3.98-1.1"
 #help (package = XML)
 #help (package = RCurl)
@@ -25,7 +26,8 @@ try (source (".job.r")); try (.job)
 options (width = 170)
 #options (width = 1000)
 
-setwd (file.path (.job$dir$raw, "protein_exp"))
+#setwd (file.path (.job$dir$raw, "protein_exp"))
+setwd (file.path ("/home/jmendieta/Documents/tcga_download/Download/expre"))
 
 ################################################################################
 
@@ -212,7 +214,9 @@ table (colnames (prot.exp) == rownames (finfo))
 ### SAVE
 prot.exp.info <- finfo
 table (colnames (prot.exp) == rownames (prot.exp.info))
-save (list = c("prot.exp", "prot.exp.info"), file = file.path (.job$dir$proces, "prot_exp.RData"))
+#save (list = c("prot.exp", "prot.exp.info"), file = file.path (.job$dir$proces, "prot_exp.RData"))
+save (list = c("prot.exp", "prot.exp.info"), file = file.path ("/home/jmendieta/Documents/tcga_download/Download/prot_exp.RData"))
+
 
 ###EXIT
 warnings ()

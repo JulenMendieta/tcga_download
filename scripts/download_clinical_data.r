@@ -1,6 +1,6 @@
 ##download_clinical_data.r
 ##2015-01-13 dmontaner@cipf.es
-##2015-04-23 mail
+##2015-04-23 julenmendieta92@gmail.com
 ##Collecting data from TCGA
 
 ## The scripts uses TCGA DCC Web Services to find out all CLINICAL data.
@@ -15,8 +15,8 @@ date ()
 Sys.info ()[c("nodename", "user")]
 commandArgs ()
 rm (list = ls ())
-R.version.string ##"R version 3.1.2 (2014-10-31)"
-library (RCurl); packageDescription ("RCurl", fields = "Version") #"1.95-4.3"
+R.version.string ##"R version 3.2.0 (2015-04-16)"
+library (RCurl); packageDescription ("RCurl", fields = "Version") #"1.95-4.5"
 library (XML); packageDescription ("XML", fields = "Version") #"3.98-1.1"
 #help (package = XML)
 #help (package = RCurl)
@@ -26,7 +26,9 @@ try (source (".job.r")); try (.job)
 options (width = 170)
 #options (width = 1000)
 
-setwd (file.path (.job$dir$raw, "clinical"))
+#setwd (file.path (.job$dir$raw, "clinical"))
+setwd (file.path ("/home/jmendieta/Documents/tcga_download/Download/Clinicos"))
+
 
 ################################################################################
 
@@ -61,7 +63,11 @@ datos[,c ("date", "fecha")]
 datos[,"url"] <- paste0 (base, datos[,3])
 
 datos[,"tag"] <- sapply (strsplit (datos[,"baseName"], split = "_"), function (x) x[2])
-table (duplicated (datos[,"tag"]))
+revdups <- table (duplicated (datos[,"tag"]))
+
+##Si hay duplicados los eliminamos para que el siguiente paso no de error
+if (revdups[2] >= 1) {dup <- duplicated (datos[,"tag"]) ; datos <- datos[!dup,]} 
+
 rownames (datos) <- datos[,"tag"]
 datos[1:3,]
 
@@ -97,7 +103,9 @@ table (datos[,"tag"], exclude = NULL)
 if (any (duplicated (datos[,"bcr_shipment_portion_uuid"]))) stop ("DUPLICATED") ## OK NO DUPS
 
 ##protein data
-load (file.path (.job$dir$proces, "prot_exp.RData"))
+#load (file.path (.job$dir$proces, "prot_exp.RData"))
+load (file.path ("/home/jmendieta/Documents/tcga_download/Download/prot_exp.RData"))
+
 dim (prot.exp)
 
 prot.ids <- colnames (prot.exp)
@@ -124,15 +132,18 @@ length (ficheros)
 ficheros
 
 ##apagno un fichero que esta mal
-li <- readLines ("nationwidechildrens.org_COAD.bio.Level_2.0.17.0/nationwidechildrens.org_biospecimen_sample_coad.txt")
+#No se si aqui estara mal tambien, el level a pasado de 2.0.17 a 2.0.25
+li <- readLines ("nationwidechildrens.org_COAD.bio.Level_2.0.25.0/nationwidechildrens.org_biospecimen_sample_coad.txt")
 li[1:10]
 lisp <- strsplit (li, split = "\t")
 lon <- sapply (lisp, length)
 table (lon)
 which (lon == 20)
 
-li[376] <- sub ("E6B279BC-97A1-4B9A-9632-06326C418E1C", "[Not Available]\tE6B279BC-97A1-4B9A-9632-06326C418E1C", li[376])
-writeLines (li, con = "nationwidechildrens.org_COAD.bio.Level_2.0.17.0/nationwidechildrens.org_biospecimen_sample_coad.txt")
+#Ya no hay este error
+#li[376] <- sub ("E6B279BC-97A1-4B9A-9632-06326C418E1C", "[Not Available]\tE6B279BC-97A1-4B9A-9632-06326C418E1C", li[376])
+#writeLines (li, con = "nationwidechildrens.org_COAD.bio.Level_2.0.25.0/nationwidechildrens.org_biospecimen_sample_coad.txt")
+
 
 datos.li <- list ()
 for (fi in ficheros) {
@@ -144,6 +155,7 @@ for (fi in ficheros) {
     datos0[,"tag"] <- tag
     datos.li[[fi]] <- datos0
 }
+
 
 t (sapply (datos.li, dim))
 colSums (t (sapply (datos.li, dim)))
