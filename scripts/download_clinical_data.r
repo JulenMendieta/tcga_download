@@ -1,5 +1,6 @@
 ##download_clinical_data.r
 ##2015-01-13 dmontaner@cipf.es
+##2015-04-23 mail
 ##Collecting data from TCGA
 
 ## The scripts uses TCGA DCC Web Services to find out all CLINICAL data.
