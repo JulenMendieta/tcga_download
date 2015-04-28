@@ -1,6 +1,6 @@
 ##download_clinical_data.r
 ##2015-01-13 dmontaner@cipf.es
-##2015-04-23 julenmendieta92@gmail.com
+##2015-04-28 julenmendieta92@gmail.com
 ##Collecting data from TCGA
 
 ## The scripts uses TCGA DCC Web Services to find out all CLINICAL data.
@@ -26,9 +26,7 @@ try (source (".job.r")); try (.job)
 options (width = 170)
 #options (width = 1000)
 
-#setwd (file.path (.job$dir$raw, "clinical"))
-setwd (file.path ("/home/jmendieta/Documents/tcga_download/Download/Clinicos"))
-
+setwd (file.path (.job$dir$raw, "clinical"))
 
 ################################################################################
 
@@ -65,8 +63,25 @@ datos[,"url"] <- paste0 (base, datos[,3])
 datos[,"tag"] <- sapply (strsplit (datos[,"baseName"], split = "_"), function (x) x[2])
 revdups <- table (duplicated (datos[,"tag"]))
 
-##Si hay duplicados los eliminamos para que el siguiente paso no de error
-if (revdups[2] >= 1) {dup <- duplicated (datos[,"tag"]) ; datos <- datos[!dup,]} 
+##En nuestro caso se repite LUAD, y tenemos un fichero con solo una revisión (genome) vs otro algo mas reciente con 27 revisiones y 
+#mas muestras (nationwidechildrens). El de nationwide es el único que se puede relacionar con las proteinas
+if (revdups[[2]] >= 1) {
+  for (i in (revdups[2])) {
+    #Primero seleccionamos donde estan las copias
+    dup <- duplicated (datos[,"tag"])
+    dup1_2 <- match(TRUE, dup)
+    duptag <- datos[dup,"tag"]
+    dup2_2 <- match(duptag, datos[,"tag"])
+    #Luego eliminamos la/las que no sea de nationwidechildrens
+    for (pos in c(dup1_2, dup2_2)) {
+      bool <- grepl("nationwidechildrens", datos[pos,"url"])
+      if (bool == FALSE) {
+        datos <- datos[-pos,]
+      }
+    }
+  }
+}
+
 
 rownames (datos) <- datos[,"tag"]
 datos[1:3,]
@@ -103,8 +118,7 @@ table (datos[,"tag"], exclude = NULL)
 if (any (duplicated (datos[,"bcr_shipment_portion_uuid"]))) stop ("DUPLICATED") ## OK NO DUPS
 
 ##protein data
-#load (file.path (.job$dir$proces, "prot_exp.RData"))
-load (file.path ("/home/jmendieta/Documents/tcga_download/Download/prot_exp.RData"))
+load (file.path (.job$dir$proces, "prot_exp.RData"))
 
 dim (prot.exp)
 

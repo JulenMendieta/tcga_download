@@ -1,6 +1,6 @@
 ##download_protein_expression.r
 ##2015-01-13 dmontaner@cipf.es
-##2015-04-23 julenmendieta92@gmail.com
+##2015-04-28 julenmendieta92@gmail.com
 ##Collecting data from TCGA
 
 ## The scripts uses TCGA DCC Web Services to find out all the PROTEIN EXPRESSION data.
@@ -26,8 +26,7 @@ try (source (".job.r")); try (.job)
 options (width = 170)
 #options (width = 1000)
 
-#setwd (file.path (.job$dir$raw, "protein_exp"))
-setwd (file.path ("/home/jmendieta/Documents/tcga_download/Download/expre"))
+setwd (file.path (.job$dir$raw, "protein_exp"))
 
 ################################################################################
 
@@ -214,8 +213,7 @@ table (colnames (prot.exp) == rownames (finfo))
 ### SAVE
 prot.exp.info <- finfo
 table (colnames (prot.exp) == rownames (prot.exp.info))
-#save (list = c("prot.exp", "prot.exp.info"), file = file.path (.job$dir$proces, "prot_exp.RData"))
-save (list = c("prot.exp", "prot.exp.info"), file = file.path ("/home/jmendieta/Documents/tcga_download/Download/prot_exp.RData"))
+save (list = c("prot.exp", "prot.exp.info"), file = file.path (.job$dir$proces, "prot_exp.RData"))
 
 
 ###EXIT
