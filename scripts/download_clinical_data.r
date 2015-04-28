@@ -61,29 +61,11 @@ datos[,c ("date", "fecha")]
 datos[,"url"] <- paste0 (base, datos[,3])
 
 datos[,"tag"] <- sapply (strsplit (datos[,"baseName"], split = "_"), function (x) x[2])
-revdups <- table (duplicated (datos[,"tag"]))
+table (duplicated (datos[,"tag"]))
 
 ##En nuestro caso se repite LUAD, y tenemos un fichero con solo una revisión (genome) vs otro algo mas reciente con 27 revisiones y 
 #mas muestras (nationwidechildrens). El de nationwide es el único que se puede relacionar con las proteinas
-if (revdups[[2]] >= 1) {
-  for (i in (revdups[2])) {
-    #Primero seleccionamos donde estan las copias
-    dup <- duplicated (datos[,"tag"])
-    dup1_2 <- match(TRUE, dup)
-    duptag <- datos[dup,"tag"]
-    dup2_2 <- match(duptag, datos[,"tag"])
-    #Luego eliminamos la/las que no sea de nationwidechildrens
-    for (pos in c(dup1_2, dup2_2)) {
-      bool <- grepl("nationwidechildrens", datos[pos,"url"])
-      if (bool == FALSE) {
-        datos <- datos[-pos,]
-      }
-    }
-  }
-}
 
-
-rownames (datos) <- datos[,"tag"]
 datos[1:3,]
 
 system.time ({
